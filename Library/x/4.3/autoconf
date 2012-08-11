@@ -1,0 +1,17 @@
+#!/usr/bin/ruby
+require "#{__FILE__}/../../libsuperenv"
+
+def autoconf
+  @autoconf ||= %W{#$brewfix/bin/autoconf /usr/bin/autoconf}.find do |ac|
+    File.executable? ac
+  end || `/usr/bin/which autoconf`.chuzzle
+end
+
+if autoconf
+  incs = %W{#{ENV['CMAKE_PREFIX_PATHS']} #$brewfix}
+  incs.delete("")
+  incs = incs.map{|path| "-I#{path}/share/aclocal" }
+  exec autoconf, *(incs + ARGV)
+else
+  abort "You need to: brew install autoconf"
+end
